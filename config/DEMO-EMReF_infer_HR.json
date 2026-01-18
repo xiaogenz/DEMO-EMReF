@@ -1,0 +1,37 @@
+{
+    "phase": "infer",
+    "model": {
+        "path": "DEMO-EMReF_infer_HR.tar",
+        "HMANet": {
+            "upscale": 2,
+            "in_chans": 1,
+            "img_size": 48,
+            "window_size": 3,
+            "interval_size": 6,
+            "img_range": 1,
+            "depths": [
+                2,
+                2,
+                2,
+                2
+            ],
+            "embed_dim": 32,
+            "num_heads": [
+                4,
+                4,
+                4,
+                4
+            ],
+            "mlp_ratio": 4,
+            "upsampler": "pixelshuffle",
+            "resi_connection": "1conv"
+        },
+        "length": {
+            "box_size": 48,
+            "stride": 24,//to save time, for better performance, you can choose 12.
+            "channels": 1
+        },
+        "batch_size": 5,
+        "num_workers": 8
+    }
+}
