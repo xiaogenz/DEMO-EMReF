@@ -1,6 +1,6 @@
 # DEMO-EMReF: Enhancing interpretability of cryo-EM maps with hybrid attention transformers [![Python](https://img.shields.io/badge/python-3.9-blue)](https://www.python.org/) [![PyTorch](https://img.shields.io/badge/PyTorch-2.0-ee4c2c)](https://pytorch.org/) [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-# Quick Start
+# Quick Start with Linux
 If you use the precompiled binary `DEMO-EMReF`, no Python environment is required. When you run the binary, it may appear to be unresponsive for a short period. This is normal, as the program is loading cached data and initializing the model. Please be patient; processing will start automatically once the cache is loaded.
 # Clone the Repository
 ```bash
