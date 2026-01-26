@@ -6,7 +6,6 @@ import torch.utils.checkpoint as checkpoint
 
 from basicsr.utils.registry import ARCH_REGISTRY
 from basicsr.archs.arch_util import to_2tuple,to_3tuple, trunc_normal_
-# from model.Loss import CombinedLoss
 from einops import rearrange
 from model.blocks import  TransformerCrossAttentionBlock, StructEmbedSequential
 def drop_path(x, drop_prob: float = 0., training: bool = False):
@@ -67,8 +66,8 @@ class Mlp(nn.Module):
 def window_partition(x, window_size):
     """
     Partition the input tensor into windows.
-    x: (b, c, h, w, d)  - 输入的5D张量
-    window_size: (wd, wh, ww)  - 每个维度的窗口大小
+    x: (b, c, h, w, d)  
+    window_size: (wd, wh, ww)  
     """
     if isinstance(window_size, int):
         window_size = (window_size, window_size, window_size)
@@ -79,7 +78,7 @@ def window_partition(x, window_size):
     #  (b, c, h, w, d) →  (b, h//wh, wh, w//ww, ww, d//wd, wd, c)
     x = x.view(b, d // wd, wd, h // wh, wh, w // ww, ww, c)  # b, c, h//wh, wh, w//ww, ww, d//wd, wd
 
-    windows = x.permute(0, 1, 3, 5, 2, 4, 6, 7).contiguous()  # 重新排列
+    windows = x.permute(0, 1, 3, 5, 2, 4, 6, 7).contiguous() 
 
 
     # (num_windows*b, window_size, window_size, window_size, c)
@@ -354,14 +353,14 @@ class FAB(nn.Module):
 class SEModule(nn.Module):
     def __init__(self, channels, rd_channels=None, bias=True):
         super(SEModule, self).__init__()
-        self.fc1 = nn.Conv3d(channels, rd_channels, kernel_size=1, bias=bias)  # 3D卷积
+        self.fc1 = nn.Conv3d(channels, rd_channels, kernel_size=1, bias=bias)  
         self.act = nn.SiLU(inplace=True)
-        self.fc2 = nn.Conv3d(rd_channels, channels, kernel_size=1, bias=bias)  # 3D卷积
+        self.fc2 = nn.Conv3d(rd_channels, channels, kernel_size=1, bias=bias) 
         self.gate = nn.Sigmoid()
 
     def forward(self, x):
         # 全局池化
-        x_se = x.mean((2, 3, 4), keepdim=True)  # 对深度、高度、宽度进行池化
+        x_se = x.mean((2, 3, 4), keepdim=True)  
         x_se = self.fc1(x_se)
         x_se = self.act(x_se)
         x_se = self.fc2(x_se)
@@ -381,7 +380,6 @@ class FusedConv(nn.Module):
         mid_feat = num_feat * expand_size
         rd_feat = int(mid_feat / attn_ratio)
         
-        # 3D层
         self.pre_norm = nn.LayerNorm(num_feat)
         self.fused_conv = nn.Conv3d(num_feat, mid_feat, 3, 1, 1) 
         self.norm1 = nn.LayerNorm(mid_feat)
@@ -412,13 +410,11 @@ class FusedConv(nn.Module):
 
         x = self.se(x)
         
-        # 1x1卷积操作
         x = self.conv3_1x1(x)
         x = x.permute(0, 2, 3, 4, 1)
         x = x.view(b, d*h*w, c)
 
-
-        return x + shortcut  # 残差连接
+        return x + shortcut  
 
 
 class AffineTransform(nn.Module):
@@ -968,9 +964,7 @@ class PixelShuffle3D(nn.Module):
         
         return output
 
-
 @ARCH_REGISTRY.register()
-
 
 class HMANet3D(nn.Module):
     def __init__(self,
@@ -1007,7 +1001,7 @@ class HMANet3D(nn.Module):
         num_out_ch = in_chans
         num_feat = 48
         self.img_range = img_range
-        self.mean = torch.zeros(1, 1, 1, 1, 1)  # 对应于3D输入
+        self.mean = torch.zeros(1, 1, 1, 1, 1)  
 
         self.upscale = upscale
         self.upsampler = upsampler
@@ -1189,9 +1183,7 @@ class HMANet3D(nn.Module):
         return x
     
     def forward(self, x,istrain=True,struc_feat=None):
-        
         if istrain and struc_feat:
-
             label = x['label']
             density = x["density"]
             struc_feat = x['struc_feat']
@@ -1216,6 +1208,6 @@ class HMANet3D(nn.Module):
         if istrain:
             total_loss,mse_loss,ssim_loss = self.loss_func(x, label)
 
-            return total_loss,mse_loss,ssim_loss, x, label  # 返回损失、输出和标签
+            return total_loss,mse_loss,ssim_loss, x, label  
         else:
             return x 
