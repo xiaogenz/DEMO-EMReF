@@ -22,9 +22,7 @@ cd DEMO-EMReF
 
 If you want to download the full example dataset, please use the following link:
 
-[Example Download](https://github.com/zhouxglab/DEMO-EMReF/releases/download/v1.0/example.zip)
-
-After downloading, unzip the file to your working directory:
+[Example Download](https://github.com/zhouxglab/DEMO-EMReF/releases/download/v1.0/example.zip) After downloading, unzip the file to your working directory:
 
 ```bash
 unzip example.zip -d ./example
