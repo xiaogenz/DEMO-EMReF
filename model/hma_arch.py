@@ -3,8 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
-import sys
-sys.path.append("/jiel/DEMO-EMReF")
 from basicsr.utils.registry import ARCH_REGISTRY
 from basicsr.archs.arch_util import to_2tuple,to_3tuple, trunc_normal_
 # from model.Loss import CombinedLoss
@@ -66,8 +64,8 @@ class Mlp(nn.Module):
 def window_partition(x, window_size):
     """
     Partition the input tensor into windows.
-    x: (b, c, h, w, d)  - 输入的5D张量
-    window_size: (wd, wh, ww)  - 每个维度的窗口大小
+    x: (b, c, h, w, d)  
+    window_size: (wd, wh, ww)  
     """
     if isinstance(window_size, int):
         window_size = (window_size, window_size, window_size)
@@ -351,14 +349,13 @@ class FAB(nn.Module):
 class SEModule(nn.Module):
     def __init__(self, channels, rd_channels=None, bias=True):
         super(SEModule, self).__init__()
-        self.fc1 = nn.Conv3d(channels, rd_channels, kernel_size=1, bias=bias)  # 3D卷积
+        self.fc1 = nn.Conv3d(channels, rd_channels, kernel_size=1, bias=bias) 
         self.act = nn.SiLU(inplace=True)
-        self.fc2 = nn.Conv3d(rd_channels, channels, kernel_size=1, bias=bias)  # 3D卷积
+        self.fc2 = nn.Conv3d(rd_channels, channels, kernel_size=1, bias=bias) 
         self.gate = nn.Sigmoid()
 
     def forward(self, x):
-        # 全局池化
-        x_se = x.mean((2, 3, 4), keepdim=True)  # 对深度、高度、宽度进行池化
+        x_se = x.mean((2, 3, 4), keepdim=True)  
         x_se = self.fc1(x_se)
         x_se = self.act(x_se)
         x_se = self.fc2(x_se)
@@ -378,20 +375,19 @@ class FusedConv(nn.Module):
         mid_feat = num_feat * expand_size
         rd_feat = int(mid_feat / attn_ratio)
         
-        # 3D层
-        self.pre_norm = nn.LayerNorm(num_feat)  # 归一化层
-        self.fused_conv = nn.Conv3d(num_feat, mid_feat, 3, 1, 1)  # 3D卷积
+        self.pre_norm = nn.LayerNorm(num_feat) 
+        self.fused_conv = nn.Conv3d(num_feat, mid_feat, 3, 1, 1)  
         self.norm1 = nn.LayerNorm(mid_feat)
         self.act1 = nn.GELU()
         self.se = SEModule(mid_feat, rd_feat, bias=True)
-        self.conv3_1x1 = nn.Conv3d(mid_feat, num_feat, 1, 1)  # 3D卷积
+        self.conv3_1x1 = nn.Conv3d(mid_feat, num_feat, 1, 1)  
 
     def forward(self, x, x_size, rpi, mask):
         shortcut = x
-        d, h, w = x_size  # 深度、高度、宽度
+        d, h, w = x_size  
         b, _, c = x.shape  # batch_size, channels, depth, height, width
         
-        # 调整输入张量形状为 (b, c, d, h, w)
+        # (b, c, d, h, w)
         x = x.view(b, d, h, w,c)
 
         x = self.pre_norm(x)
@@ -401,20 +397,17 @@ class FusedConv(nn.Module):
 
         x = x.permute(0, 2, 3, 4, 1)
 
-        # 激活并应用归一化
         x = self.act1(self.norm1(x))
         x = x.permute(0, 4, 1, 2, 3)
 
-        # Squeeze-and-Excitation模块
         x = self.se(x)
         
-        # 1x1卷积操作
         x = self.conv3_1x1(x)
         x = x.permute(0, 2, 3, 4, 1)
         x = x.view(b, d*h*w, c)
         # print(f"x.shape: {x.shape}, shortcut.shape: {shortcut.shape}")
 
-        return x + shortcut  # 残差连接
+        return x + shortcut  
 
 
 
@@ -1112,7 +1105,7 @@ class HMANet3D(nn.Module):
         if self.upsampler == 'pixelshuffle':
             self.conv_before_upsample = nn.Sequential(
                 nn.Conv3d(embed_dim, num_feat, 3, 1, 1), nn.LeakyReLU(inplace=True))
-            self.upsample = Upsample3D(upscale, num_feat)  # 需要定义3D的Upsample模块
+            self.upsample = Upsample3D(upscale, num_feat)  
             self.conv_last = nn.Conv3d(num_feat, num_out_ch, 3, 1, 1)
 
         self.apply(self._init_weights)
@@ -1127,7 +1120,6 @@ class HMANet3D(nn.Module):
             nn.init.constant_(m.weight, 1.0)
 
     def calculate_rpi_sa(self):
-        # 计算三维相对位置索引
         coords_d = torch.arange(self.window_size)
         coords_h = torch.arange(self.window_size)
         coords_w = torch.arange(self.window_size)
@@ -1160,27 +1152,25 @@ class HMANet3D(nn.Module):
         shift_size_height = window_size_height // 2
         shift_size_width = window_size_width // 2
 
-        # 创建深度、高度、宽度的切片
         d_slices = (slice(0, -window_size_depth), slice(-window_size_depth, -shift_size_depth), slice(-shift_size_depth, None))
         h_slices = (slice(0, -window_size_height), slice(-window_size_height, -shift_size_height), slice(-shift_size_height, None))
         w_slices = (slice(0, -window_size_width), slice(-window_size_width, -shift_size_width), slice(-shift_size_width, None))
 
-
         cnt = 0
-        # 遍历深度、高度、宽度的切片
+
         for d in d_slices:
             for h in h_slices:
                 for w in w_slices:
-                    img_mask[:, h, w, d, :] = cnt  # 注意调整顺序
+                    img_mask[:, h, w, d, :] = cnt  
                     cnt += 1
         
         if isinstance(self.window_size, int):
             self.window_size = (self.window_size, self.window_size, self.window_size)
 
-        # 调用 window_partition 处理掩码
+        # window_partition
         mask_windows = window_partition(img_mask, self.window_size)  # nw, window_size, window_size, window_size, 1
 
-        # 展开并生成 attention mask
+        # attention mask
         mask_windows = mask_windows.view(-1, self.window_size[0] * self.window_size[1] * self.window_size[2])
         attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
         attn_mask = attn_mask.masked_fill(attn_mask != 0, float(-100.0)).masked_fill(attn_mask == 0, float(0.0))
@@ -1211,7 +1201,7 @@ class HMANet3D(nn.Module):
         return x
     
     def forward(self, x,istrain=True):
-        # print("x: ", type(x))
+
         if istrain:
             label = x['label']
             x = x["density"]
@@ -1227,11 +1217,7 @@ class HMANet3D(nn.Module):
             x = self.conv_last(x)
 
         if istrain:
-
             total_loss,mse_loss,ssim_loss = self.loss_func(x, label)
-
-            diff = torch.abs(x - label)
-            num_large_diff = (diff > 0.5).sum().item()
 
             return total_loss,mse_loss,ssim_loss, x, label  
         else:
