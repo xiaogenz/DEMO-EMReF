@@ -13,21 +13,16 @@ class HMA(Base_hma):
     def __init__(self, opt):
         super(HMA, self).__init__(opt)
         
-
         self.netG = define_G(opt)
         
-
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.netG = self.netG.to(device)  
         
-
         self.netG = model_to_gpu(self.netG)
         self.schedule_phase = None
-        
-        
+          
         # self.set_loss()
         
- 
         if self.opt['phase'] == 'train':
             self.netG.train()
             self.set_loss()
@@ -40,18 +35,18 @@ class HMA(Base_hma):
         self.log_dict = OrderedDict()
 
     def feed_data(self, data):
-        """将输入数据传递给模型"""
+
         self.data = self.set_device(data)
 
     def set_loss(self):
-        """设置损失函数"""
+
         if isinstance(self.netG, nn.DataParallel):
             self.netG.module.set_loss()
         else:
             self.netG.set_loss()
 
     def print_network(self):
-        """打印网络结构和参数数量"""
+   
         s, n = self.get_network_description(self.netG)
         if isinstance(self.netG, nn.DataParallel):
             net_struc_str = '{} - {}'.format(self.netG.__class__.__name__,
@@ -64,7 +59,7 @@ class HMA(Base_hma):
         logger.info(s)
 
     def optimize_parameters(self):
-        """优化模型参数"""
+  
         self.optG.zero_grad()
         
         # l_pix, x_recon, x_target = self.netG(self.data)
@@ -77,7 +72,6 @@ class HMA(Base_hma):
         
         self.optG.step()
         
-        # 设置日志
         self.log_dict['loss'] = l_pix.item()
         self.log_dict['mse_loss'] = mse_loss.item()
         self.log_dict['ssim_loss'] = ssim_loss.item()
@@ -85,7 +79,7 @@ class HMA(Base_hma):
         return self.log_dict
 
     def calculate_loss(self):
-        """计算验证时的损失"""
+
         self.netG.eval()
         with torch.no_grad():
             l_pix,mse_loss,ssim_loss, x_recon, x_target = self.netG(self.data,istrain=True)
@@ -100,9 +94,7 @@ class HMA(Base_hma):
         return self.log_dict
 
     def test(self):
-        """
-        这是推理步骤，用于逐步获取最终结果
-        """
+
         self.netG.eval()
         
         with torch.no_grad():
