@@ -1,4 +1,6 @@
 # Copyright (C) 2024  Hong Cao, Jiahua He, Tao Li, Sheng-You Huang and Huazhong University of Science and Technology
+# Modifications Copyright (C) 2026  Jie Lin, Ziying Zhang, Yu Zhang, Chengyuan Wang, Guijun Zhang, Xiaogen Zhou and College of Information Engineering, Zhejiang University of Technology
+# This file is part of a modified version of DEMO-EMReF.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -91,16 +93,19 @@ def get_map_from_overlapped_chunks(chunks, ncx, ncy, ncz, box_size, stride, nxyz
                 i += 1
     return (map / denominator.clip(min=1))[stride : nxyz[2] + stride, stride : nxyz[1] + stride, stride : nxyz[0] + stride]
 
-# ===================== 改写后的拼回函数 =====================
+# ===================== Weighted averaging stitching function =====================
 def get_map_from_overlapped_chunks_weighted(chunks, ncx, ncy, ncz, box_size, stride, nxyz, valid_margin=0, dtype=np.float32):
     """
-    将切块拼回整图，使用 Hann×Center 加权平均
-    chunks: numpy array, shape (N_chunks, box_size, box_size, box_size)
-    ncx/ncy/ncz: 切块数
-    box_size: 每个切块大小
-    stride: 步长
-    nxyz: 原图尺寸 (X,Y,Z)
-    valid_margin: Center 窗 margin
+    Reconstruct the full volume from overlapped patches using
+    Hann × Center weighted averaging.
+
+    Args:
+        chunks: numpy array of shape (N_chunks, box_size, box_size, box_size)
+        ncx, ncy, ncz: number of chunks along X, Y, Z directions
+        box_size: size of each patch
+        stride: sliding window stride
+        nxyz: original volume size (X, Y, Z)
+        valid_margin: margin size for the center window
     """
     W = fusion_window_3d(box_size, valid_margin)
 
@@ -120,10 +125,8 @@ def get_map_from_overlapped_chunks_weighted(chunks, ncx, ncy, ncz, box_size, str
                             y_steps * stride : y_steps * stride + box_size,
                             z_steps * stride : z_steps * stride + box_size] += W
                 i += 1
-    # 防止除以0
     denominator[denominator==0] = 1.0
 
-    # 裁回原图尺寸
     return map_out / denominator, \
            map_out[stride : nxyz[2] + stride,
                    stride : nxyz[1] + stride,
