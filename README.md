@@ -19,6 +19,18 @@ cd DEMO-EMReF
 ```bash
 ./dist/DEMO-EMReF -F /path/to/input_map.mrc -o /path/to/output_map_refined.mrc --mode HR --gpu 0 -b 8 -s 24
 ```
+# Download Full Example Files
+
+If you want to download the full example dataset, please use the following link:
+
+[DEMO-EMReF Full Example Download](https://github.com/zhouxglab/DEMO-EMReF/releases/download/v1.0/example.zip)
+
+After downloading, unzip the file to your working directory:
+
+```bash
+unzip example.zip -d ./example
+```
+
 # Options in DEMO-EMReF
 | Option               | Description                                                                  |
 | -------------------- | ---------------------------------------------------------------------------- |
