@@ -7,6 +7,10 @@ If you use the precompiled binary `DEMO-EMReF`, no Python environment is require
 
 [Download](http://zhouxglab.com/DEMO-EMReF/download/DEMO-EMReF_linux_x86_64.tar.gz)
 
+# Grant execute permission to the executable file
+```bash
+chmod +x ./dist/DEMO-EMReF
+```
 # Show help
 ```bash
 ./dist/DEMO-EMReF -h
