@@ -31,8 +31,8 @@ unzip example.zip -d ./example
 # Options in DEMO-EMReF
 | Option               | Description                                                                  |
 | -------------------- | ---------------------------------------------------------------------------- |
-| `-F`, --input`       | Input cryo-EM / cryo-ET map (MRC\MAP format)                                 |
-| `-o`, --output`      | Output refined map                                                           |
+| `-F, --input`        | Input cryo-EM / cryo-ET map (MRC\MAP format)                                 |
+| `-o, --output`       | Output refined map                                                           |
 | `--mode {HR,MR,ET}`  | Inference mode (default: HR)                                                 |
 | `--config`           | Custom JSON config file                                                      |
 | `--gpu`              | GPU ID(s), e.g. `0` or `0,1`                                                 |
