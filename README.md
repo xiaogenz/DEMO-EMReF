@@ -1,7 +1,20 @@
 # DEMO-EMReF: Enhancing interpretability of cryo-EM maps with hybrid attention transformers [![Python](https://img.shields.io/badge/python-3.8-blue)](https://www.python.org/) [![PyTorch](https://img.shields.io/badge/PyTorch-2.0-ee4c2c)](https://pytorch.org/) [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 # Quick Start with Linux
-If you use the precompiled binary `DEMO-EMReF`, no Python environment is required. When you run the binary, it may appear to be unresponsive for a short period. This is normal, as the program is loading cached data and initializing the model. Please be patient; processing will start automatically once the cache is loaded. Click here to [Download](http://zhouxglab.com/DEMO-EMReF/download/DEMO-EMReF_dist.tar.gz).
+If you use the precompiled binary `DEMO-EMReF`, no Python environment is required. When you run the binary, it may appear to be unresponsive for a short period. This is normal, as the program is loading cached data and initializing the model. Please be patient; processing will start automatically once the cache is loaded.
+
+## Download DEMO-EMReF
+
+You can download the precompiled package using either the direct link or from GitHub releases.
+
+### Option 1: Direct link
+[Download DEMO-EMReF_dist.tar.gz](http://zhouxglab.com/DEMO-EMReF/download/DEMO-EMReF_dist.tar.gz)
+
+### Option 2: GitHub release
+```bash
+# Download the example ZIP file from GitHub
+wget https://github.com/zhouxglab/DEMO-EMReF/releases/download/v1.0/example.zip
+```
 
 # Extract the package
 ```bash
