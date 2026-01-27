@@ -33,7 +33,7 @@ def argparser():
         )
     )
     parser.add_argument(
-        "--mode","-m", type=str, choices=["HR", "MR", "ET"], default=False,
+        "--mode","-m", type=str, choices=["HR", "MR", "ET"], default="HR",
         help=(
             "Inference mode:\n"
             "  HR - High-resolution refinement\n"
