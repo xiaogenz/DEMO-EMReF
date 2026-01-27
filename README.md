@@ -3,6 +3,10 @@
 # Quick Start with Linux
 If you use the precompiled binary `DEMO-EMReF`, no Python environment is required. When you run the binary, it may appear to be unresponsive for a short period. This is normal, as the program is loading cached data and initializing the model. Please be patient; processing will start automatically once the cache is loaded. Click here to [Download](http://zhouxglab.com/DEMO-EMReF/download/DEMO-EMReF_dist.tar.gz).
 
+# Extract the package
+```bash
+tar -xzvf DEMO-EMReF_dist.tar.gz
+```
 # Grant execute permission to the executable file
 ```bash
 chmod +x ./dist/DEMO-EMReF
