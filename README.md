@@ -12,7 +12,6 @@ You can download the precompiled package using either the direct link or from Gi
 
 ### Option 2: GitHub release
 ```bash
-# Download the example ZIP file from GitHub
 wget http://zhouxglab.com/DEMO-EMReF/download/DEMO-EMReF_dist.tar.gz
 ```
 
